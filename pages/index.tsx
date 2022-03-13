@@ -1,3 +1,9 @@
+import { GetServerSideProps } from "next";
+import bcrypt from "bcryptjs";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
 export default function Home() {
   return (
     <div>
@@ -5,3 +11,15 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const allUsers = await prisma.user.findMany({
+    include: {
+      memberId: true,
+      email: true,
+      createDate: true,
+    },
+  });
+  console.log(allUsers, { depth: null });
+  return { props: { allUsers } };
+};

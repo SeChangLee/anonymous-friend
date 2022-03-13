@@ -9,3 +9,27 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+  // id          Int       @default(autoincrement()) @id
+  // avatarUrl   String?   @default("")
+  // username    String
+  // email       String    @unique
+  // password    String
+  // phoneNum    String    @default("") @unique
+  // bio         String?   @default("")
+  // createdAt   DateTime? @default(now())
+
+model Member {
+  memberId              Int         @id @default(autoincrement()) 
+  email                 String?     @unique
+  password              String?     
+  nickname              String?     
+  mbti                  String?     
+  birthday              String?     
+  gender                String?     
+  stateId               Int?        
+  emailCertKey          String?     
+  emailCertDate         DateTime    
+  withdrawalApplyDate   DateTime    
+  createDate            DateTime?   @default(now())
+}

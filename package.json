@@ -1,6 +1,9 @@
 {
   "name": "anonymous-friends",
   "version": "0.1.0",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,11 +12,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^3.10.0",
     "next": "12.1.0",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/node": "17.0.21",
     "@types/react": "17.0.39",
     "autoprefixer": "^10.4.2",
