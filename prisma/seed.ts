@@ -2,14 +2,17 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const allUsers = await prisma.user.findMany({
-    include: {
-      memberId: true,
-      email: true,
-      createDate: true,
-    },
-  });
-  console.log(allUsers, { depth: null });
+  const allUsers = await prisma.test
+    .findMany
+    //   {
+    //   include: {
+    //     memberId: true;
+    //     email: true;
+    //     createDate: true;
+    //   },
+    // }
+    ();
+  // console.log(allUsers, { depth: null });
 }
 
 main()

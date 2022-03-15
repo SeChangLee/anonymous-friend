@@ -13,13 +13,17 @@ export default function Home() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const allUsers = await prisma.user.findMany({
-    include: {
-      memberId: true,
-      email: true,
-      createDate: true,
-    },
-  });
-  console.log(allUsers, { depth: null });
-  return { props: { allUsers } };
+  const allUsers = await prisma.test
+    .findMany
+    //   {
+    //   include: {
+    //     memberId: true,
+    //     email: true,
+    //     createDate: true,
+    //   },
+    // }
+    ();
+  console.log(allUsers);
+  return { props: {} };
+  // return { props: { allUsers } };
 };
