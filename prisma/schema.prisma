@@ -7,29 +7,107 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Test {
-  memberId            Int       @id @default(autoincrement())
-  email               String?   @unique
-  password            String?
-  nickname            String?
-  mbti                String?
-  birthday            String?
-  gender              String?
-  stateId             Int?
-  emailCertKey        String?
-  emailCertDate       DateTime
-  withdrawalApplyDate DateTime
-  createDate          DateTime? @default(now())
-}
-
 model member_state {
   state_id    Int      @id(map: "member_state_pk") @unique(map: "member_state_idx_01") @default(autoincrement())
   name        String   @db.VarChar(15)
+  is_used     Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
   create_date DateTime @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  member      member[]
 }
 
-model member_stateeee {
-  state_id    Int      @id @default(autoincrement())
-  name        String   @db.VarChar(15)
-  create_date DateTime @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+model member {
+  member_id                                             Int            @id(map: "member_pk") @default(autoincrement())
+  email                                                 String         @db.VarChar(30)
+  password                                              String         @db.VarChar(256)
+  nickname                                              String         @db.VarChar(10)
+  mbti                                                  mbti_type
+  birthday                                              String         @db.VarChar(8)
+  gender                                                gender_type
+  state_id                                              Int
+  email_cert_key                                        String?        @db.VarChar(30)
+  email_cert_date                                       DateTime?      @db.Timestamp(6)
+  withdrawal_apply_date                                 DateTime?      @db.Timestamp(6)
+  create_date                                           DateTime       @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  modify_date                                           DateTime?      @db.Timestamp(6)
+  member_state                                          member_state   @relation(fields: [state_id], references: [state_id], onDelete: Cascade, map: "member_fk_01")
+  member_block_memberTomember_block_block_member_id     member_block?  @relation("memberTomember_block_block_member_id")
+  member_block_memberTomember_block_member_id           member_block?  @relation("memberTomember_block_member_id")
+  message                                               message?
+  message_group_memberTomessage_group_member_id         message_group? @relation("memberTomessage_group_member_id")
+  message_group_memberTomessage_group_receive_member_id message_group? @relation("memberTomessage_group_receive_member_id")
+
+  @@index([mbti], map: "member_idx_01")
+  @@index([gender], map: "member_idx_02")
+  @@index([email], map: "member_idx_03")
+}
+
+model block_type {
+  type_id       Int             @id(map: "block_type_pk") @default(autoincrement())
+  name          String          @db.VarChar(15)
+  is_used       Boolean         @default(true)
+  is_deleted    Boolean         @default(false)
+  create_date   DateTime        @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  member_block  member_block?
+  message_group message_group[]
+}
+
+model member_block {
+  block_id                                    Int        @id(map: "member_block_pk") @default(autoincrement())
+  member_id                                   Int        @unique(map: "member_block_idx_01")
+  block_member_id                             Int        @unique(map: "member_block_idx_02")
+  block_type_id                               Int        @unique(map: "member_block_idx_03")
+  block_reason                                String?    @db.VarChar(50)
+  is_deleted                                  Boolean    @default(false)
+  create_date                                 DateTime   @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  member_memberTomember_block_block_member_id member     @relation("memberTomember_block_block_member_id", fields: [block_member_id], references: [member_id], onDelete: Cascade, map: "member_block_fk_02")
+  block_type                                  block_type @relation(fields: [block_type_id], references: [type_id], onDelete: Cascade, map: "member_block_fk_03")
+  member_memberTomember_block_member_id       member     @relation("memberTomember_block_member_id", fields: [member_id], references: [member_id], onDelete: Cascade, map: "member_block_fk_01")
+}
+
+model message {
+  message_id       Int      @id(map: "message_pk") @default(autoincrement())
+  message_content  String   @db.VarChar(100)
+  create_member_id Int      @unique(map: "message_idx_01")
+  create_date      DateTime @unique(map: "message_idx_02") @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  member           member   @relation(fields: [create_member_id], references: [member_id], onDelete: Cascade, map: "message_fk_01")
+}
+
+model message_group {
+  group_id                                       Int         @id(map: "message_group_pk") @default(autoincrement())
+  title                                          String      @db.VarChar(25)
+  member_id                                      Int         @unique(map: "message_group_idx_01")
+  receive_member_id                              Int         @unique(map: "message_group_idx_02")
+  block_type_id                                  Int?
+  block_reason                                   String?     @db.VarChar(50)
+  is_deleted                                     Boolean     @default(false)
+  create_date                                    DateTime    @unique(map: "message_group_idx_03") @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  modify_date                                    DateTime?   @db.Timestamp(6)
+  block_type                                     block_type? @relation(fields: [block_type_id], references: [type_id], onDelete: Cascade, map: "message_group_fk_03")
+  member_memberTomessage_group_member_id         member      @relation("memberTomessage_group_member_id", fields: [member_id], references: [member_id], onDelete: Cascade, map: "message_group_fk_01")
+  member_memberTomessage_group_receive_member_id member      @relation("memberTomessage_group_receive_member_id", fields: [receive_member_id], references: [member_id], onDelete: Cascade, map: "message_group_fk_02")
+}
+
+enum gender_type {
+  male
+  female
+}
+
+enum mbti_type {
+  ISTJ
+  ISFJ
+  INFJ
+  INTJ
+  ISTP
+  ISFP
+  INFP
+  INTP
+  ESTP
+  ESFP
+  ENFP
+  ENTP
+  ESTJ
+  ESFJ
+  ENFJ
+  ENTJ
 }
