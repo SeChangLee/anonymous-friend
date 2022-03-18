@@ -1,8 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// 샘플 데이터 삽입
 async function main() {
-  const allUsers = await prisma.test
+  const allUsers = await prisma.member
     .findMany
     //   {
     //   include: {

@@ -17,25 +17,28 @@ model member_state {
 }
 
 model member {
-  member_id                                             Int            @id(map: "member_pk") @default(autoincrement())
-  email                                                 String         @db.VarChar(30)
-  password                                              String         @db.VarChar(256)
-  nickname                                              String         @db.VarChar(10)
-  mbti                                                  mbti_type
-  birthday                                              String         @db.VarChar(8)
-  gender                                                gender_type
-  state_id                                              Int
-  email_cert_key                                        String?        @db.VarChar(30)
-  email_cert_date                                       DateTime?      @db.Timestamp(6)
-  withdrawal_apply_date                                 DateTime?      @db.Timestamp(6)
-  create_date                                           DateTime       @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
-  modify_date                                           DateTime?      @db.Timestamp(6)
-  member_state                                          member_state   @relation(fields: [state_id], references: [state_id], onDelete: Cascade, map: "member_fk_01")
-  member_block_memberTomember_block_block_member_id     member_block?  @relation("memberTomember_block_block_member_id")
-  member_block_memberTomember_block_member_id           member_block?  @relation("memberTomember_block_member_id")
-  message                                               message?
-  message_group_memberTomessage_group_member_id         message_group? @relation("memberTomessage_group_member_id")
-  message_group_memberTomessage_group_receive_member_id message_group? @relation("memberTomessage_group_receive_member_id")
+  member_id                                                    Int                    @id(map: "member_pk") @default(autoincrement())
+  email                                                        String                 @db.VarChar(30)
+  password                                                     String                 @db.VarChar(256)
+  nickname                                                     String                 @db.VarChar(10)
+  mbti                                                         mbti_type
+  birthday                                                     String                 @db.VarChar(8)
+  gender                                                       gender_type
+  state_id                                                     Int
+  email_cert_key                                               String?                @db.VarChar(30)
+  email_cert_date                                              DateTime?              @db.Timestamp(6)
+  withdrawal_apply_date                                        DateTime?              @db.Timestamp(6)
+  create_date                                                  DateTime               @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  modify_date                                                  DateTime?              @db.Timestamp(6)
+  member_state                                                 member_state           @relation(fields: [state_id], references: [state_id], onDelete: Cascade, map: "member_fk_01")
+  member_block_memberTomember_block_block_member_id            member_block?          @relation("memberTomember_block_block_member_id")
+  member_block_memberTomember_block_member_id                  member_block?          @relation("memberTomember_block_member_id")
+  member_dust_level_memberTomember_dust_level_member_id        member_dust_level?     @relation("memberTomember_dust_level_member_id")
+  member_dust_level_memberTomember_dust_level_target_member_id member_dust_level[]    @relation("memberTomember_dust_level_target_member_id")
+  member_login_history                                         member_login_history[]
+  message                                                      message?
+  message_group_memberTomessage_group_member_id                message_group?         @relation("memberTomessage_group_member_id")
+  message_group_memberTomessage_group_receive_member_id        message_group?         @relation("memberTomessage_group_receive_member_id")
 
   @@index([mbti], map: "member_idx_01")
   @@index([gender], map: "member_idx_02")
@@ -86,6 +89,38 @@ model message_group {
   block_type                                     block_type? @relation(fields: [block_type_id], references: [type_id], onDelete: Cascade, map: "message_group_fk_03")
   member_memberTomessage_group_member_id         member      @relation("memberTomessage_group_member_id", fields: [member_id], references: [member_id], onDelete: Cascade, map: "message_group_fk_01")
   member_memberTomessage_group_receive_member_id member      @relation("memberTomessage_group_receive_member_id", fields: [receive_member_id], references: [member_id], onDelete: Cascade, map: "message_group_fk_02")
+}
+
+model dust_level {
+  dust_level_id  Int      @id(map: "dust_level_pk") @default(autoincrement())
+  name           String   @db.VarChar(10)
+  icon_file_path String   @db.VarChar(100)
+  minimum_value  Int
+  maximum_value  Int
+  create_date    DateTime @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+
+  @@unique([minimum_value, maximum_value, create_date], map: "dust_level_idx_01")
+}
+
+model member_dust_level {
+  member_dust_level_id                              Int      @id(map: "member_dust_index_history_pk") @default(autoincrement())
+  member_id                                         Int      @unique(map: "member_dust_level_idx_01")
+  target_member_id                                  Int
+  is_good_bad                                       Boolean
+  create_date                                       DateTime @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  member_memberTomember_dust_level_member_id        member   @relation("memberTomember_dust_level_member_id", fields: [member_id], references: [member_id], onDelete: Cascade, map: "member_dust_level_fk_01")
+  member_memberTomember_dust_level_target_member_id member   @relation("memberTomember_dust_level_target_member_id", fields: [target_member_id], references: [member_id], onDelete: Cascade, map: "member_dust_level_fk_02")
+
+  @@unique([target_member_id, is_good_bad, create_date], map: "member_dust_level_idx_02")
+}
+
+model member_login_history {
+  history_id  Int      @id(map: "member_login_history_pk") @default(autoincrement())
+  member_id   Int
+  create_date DateTime @default(dbgenerated("CURRENT_TIMESTAMP(3)")) @db.Timestamp(6)
+  member      member   @relation(fields: [member_id], references: [member_id], onDelete: Cascade, map: "member_login_history_fk_01")
+
+  @@unique([member_id, create_date], map: "member_login_history_idx_01")
 }
 
 enum gender_type {
